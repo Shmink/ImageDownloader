@@ -1,13 +1,17 @@
 package imageDownloader;
 
 import java.awt.EventQueue;
+
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+
 import java.awt.Font;
+
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -17,10 +21,14 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+
 import javax.swing.DefaultComboBoxModel;
+
 import java.awt.Color;
+
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
@@ -56,8 +64,15 @@ public class GUI {
 	/**
 	 * Initialize the contents of the frame.
 	 */
-	String path;
+	public static String path = null; 
+	public static String url = null;
+	Grabber grab = new Grabber();
 	private JTable table;
+	//Table variables
+	String[] nameTheColoumns = {"File", "Status"};
+	String[][] data;
+	JLabel lblNoFiles;
+	
 	private void initialize() {
 		frmFileDownloader = new JFrame();
 		frmFileDownloader.setTitle("File Downloader");
@@ -80,19 +95,31 @@ public class GUI {
 		
 		SwingUtilities.updateComponentTreeUI(frmFileDownloader);
 		
+		lblNoFiles = new JLabel("No files :(");
+		lblNoFiles.setFont(new Font("Consolas", Font.BOLD | Font.ITALIC, 16));
+		lblNoFiles.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNoFiles.setBounds(70, 156, 200, 50);
+		frmFileDownloader.getContentPane().add(lblNoFiles);
+		
 		JLabel lblUrl = new JLabel("URL:");
 		lblUrl.setFont(new Font("Consolas", Font.PLAIN, 11));
 		lblUrl.setBounds(10, 11, 46, 14);
 		frmFileDownloader.getContentPane().add(lblUrl);
 		
 		URLtextBox = new JTextField();
-		URLtextBox.setForeground(Color.BLUE);
 		URLtextBox.setFont(new Font("Consolas", Font.PLAIN, 11));
 		URLtextBox.setBounds(38, 8, 306, 20);
 		frmFileDownloader.getContentPane().add(URLtextBox);
 		URLtextBox.setColumns(10);
 		
 		JButton btnFetchImages = new JButton("Fetch files");
+		btnFetchImages.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) 
+			{
+				url = URLtextBox.getText();
+				tableMaker();
+			}
+		});
 		btnFetchImages.setFont(new Font("Consolas", Font.PLAIN, 11));
 		btnFetchImages.setBounds(357, 6, 188, 23);
 		frmFileDownloader.getContentPane().add(btnFetchImages);
@@ -130,7 +157,17 @@ public class GUI {
 		btnDownload.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				
+				if(URLtextBox.getText().contains("http") && filePathBox.getText().length() > 0)
+				{
+					url = URLtextBox.getText();
+					path = filePathBox.getText();
+					
+					grab.run();
+				}
+				else
+				{
+					JOptionPane.showMessageDialog(null, "Some important fields are empty.");
+				}
 			}
 		});
 		btnDownload.setFont(new Font("Consolas", Font.PLAIN, 11));
@@ -187,15 +224,36 @@ public class GUI {
 		frmFileDownloader.getContentPane().add(separator_3);
 		
 		table = new JTable();
-		table.setModel(new DefaultTableModel(
-			new Object[][] {
-			},
-			new String[] {
-				"File name", "New column"
-			}
-		));
+		table.setBackground(Color.LIGHT_GRAY);
+		//table.setModel(new DefaultTableModel(data, nameTheColoumns));
 		table.setBounds(10, 36, 334, 326);
 		frmFileDownloader.getContentPane().add(table);
+		
+		
+	}
+	
+	public void tableMaker()
+	{
+		grab.updateFileNames();
+		int amountOfImages = Grabber.filenameArray.size();
+		
+		if(amountOfImages > 0)
+		{
+			lblNoFiles.setText("");
+			table.setBackground(Color.WHITE);
+		}
+		
+		data = new String[Grabber.filenameArray.size()][nameTheColoumns.length];
+		for (int i = 0; i < amountOfImages; i++) 
+		{
+			String fileName = Grabber.filenameArray.get(i);
+			String status = "Queued";
+			System.out.println("in the tableMaker method: " + fileName);
+			String[] details = {fileName, status};
+			
+			data[i] = details;
+		}
+		table.setModel(new DefaultTableModel(data, nameTheColoumns));
 	}
 	
 	/**
@@ -210,13 +268,10 @@ public class GUI {
 		fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		fileChooser.setAcceptAllFileFilterUsed(false);
 		int returnVal = fileChooser.showOpenDialog(null);
+		
 		if (returnVal == JFileChooser.APPROVE_OPTION) 
-		{
 			path = fileChooser.getSelectedFile().getAbsolutePath();
-		}
 		else
-		{
 			path = "";
-		}
 	}
 }

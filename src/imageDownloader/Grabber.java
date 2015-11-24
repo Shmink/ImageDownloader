@@ -18,6 +18,9 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+
+import javax.swing.JOptionPane;
 
 public class Grabber {
 
@@ -33,18 +36,58 @@ public class Grabber {
 	    }
 	}
 	
-	public static void main(String[] args) 
+	public static ArrayList<String> filenameArray = new ArrayList<String>();
+	Document doc;
+	
+	public void updateFileNames()
 	{
-		Document doc;
 		try 
 		{
-			String webaddress = "http://www.cs.bham.ac.uk";
-			String folderPath = "C:\\Users\\Tommy\\Documents\\ImageDownloader\\";
+			String webaddress = GUI.url;
+			
+			//get all images
+			doc = Jsoup.connect(webaddress).get();
+			// selector uses CSS selector with regular expression
+			
+			Elements images = doc.select("img[src~=(?i)\\.(png|jpe?g|gif)]");
+			for (Element image : images) 
+			{
+				String urlstr = image.attr("src");
+				//System.out.println(urlstr);
+				if(urlstr.indexOf(webaddress)<=0)
+					urlstr = webaddress + urlstr;
+				//System.out.println(urlstr);
+
+				String fileName = urlstr.substring( urlstr.lastIndexOf('/')+1, urlstr.length() );
+				//System.out.println(fileName);
+				
+				filenameArray.add(fileName);
+				
+				System.out.println("filenameArray is " + filenameArray.size() + " elements big!");
+			}
+		}
+		catch (IOException e) 
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	public void run() 
+	{
+		
+		try 
+		{
+			String webaddress = GUI.url;
+			String folderPath = GUI.path + "/";
+			
+			System.out.println("URL is: " + webaddress + "\n" + "Folder path is: " + folderPath + "\n");
+			
 			//get all images
 			doc = Jsoup.connect(webaddress).get();
 			// selector uses CSS selector with regular expression
 			Elements images = doc.select("img[src~=(?i)\\.(png|jpe?g|gif)]");
-			for (Element image : images) {
+			for (Element image : images) 
+			{
 				String urlstr = image.attr("src");
 				System.out.println(urlstr);
 				if(urlstr.indexOf(webaddress)<=0)
@@ -54,18 +97,24 @@ public class Grabber {
 				String fileName = urlstr.substring( urlstr.lastIndexOf('/')+1, urlstr.length() );
 				System.out.println(fileName);
 				
+				filenameArray.add(fileName);
+				
 				 //Open a URL Stream
 				URL url = new URL(urlstr);
 				InputStream in = url.openStream();
-				OutputStream out = new BufferedOutputStream(new FileOutputStream( folderPath+ fileName));
-				for (int b; (b = in.read()) != -1;) {
-				out.write(b);
+				OutputStream out = new BufferedOutputStream(new FileOutputStream( folderPath + fileName));
+				for (int b; (b = in.read()) != -1;) 
+				{
+					out.write(b);
 				}
+				
 				out.close();
 				in.close();
-
-
-	 
+			}
+			
+			System.out.println("in the array list is the following");
+			for (int i = 0; i < filenameArray.size(); i++) {
+				System.out.println(i + " image: " + filenameArray.get(i));
 			}
 	 
 		} 
