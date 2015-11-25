@@ -116,8 +116,14 @@ public class GUI {
 		btnFetchImages.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) 
 			{
-				url = URLtextBox.getText();
-				tableMaker();
+				if(URLtextBox.getText().contains("http"))
+				{
+					Grabber.filenameArray.clear();
+					url = URLtextBox.getText();
+					tableMaker();
+				}
+				else
+					JOptionPane.showMessageDialog(null, "The URL text field isn't correct.");
 			}
 		});
 		btnFetchImages.setFont(new Font("Consolas", Font.PLAIN, 11));
