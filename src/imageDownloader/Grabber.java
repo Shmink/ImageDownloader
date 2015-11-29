@@ -22,13 +22,21 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
-public class Grabber {
-
+/**
+ * Class for grabbing and downloading files from said website.
+ * @author Tom Nicklin
+ *
+ */
+public class Grabber 
+{
 	/**
-	 * @param args
+	 * This method is for the creating the files when downloaded.
+	 * @param is
+	 * @param os
+	 * @throws IOException
 	 */
-
-	private void writeFile(InputStream is, OutputStream os) throws IOException {
+	private void writeFile(InputStream is, OutputStream os) throws IOException 
+	{
 	    byte[] buf = new byte[512]; // optimize the size of buffer to your need
 	    int num;
 	    while ((num = is.read(buf)) != -1) {
@@ -36,16 +44,21 @@ public class Grabber {
 	    }
 	}
 	
+	//This keeps the file names.
 	public static ArrayList<String> filenameArray = new ArrayList<String>();
 	Document doc;
 	
+	/**
+	 * This method only grabs the file names from the website.
+	 * It's run when you click the 'fetch files' button on the GUI.
+	 * Simply a modify of the download function.
+	 */
 	public void updateFileNames()
 	{
 		try 
 		{
 			String webaddress = GUI.url;
 			
-			//get all images
 			doc = Jsoup.connect(webaddress).get();
 			// selector uses CSS selector with regular expression
 			
@@ -53,13 +66,10 @@ public class Grabber {
 			for (Element image : images) 
 			{
 				String urlstr = image.attr("src");
-				//System.out.println(urlstr);
 				if(urlstr.indexOf(webaddress)<=0)
 					urlstr = webaddress + urlstr;
-				//System.out.println(urlstr);
 
 				String fileName = urlstr.substring( urlstr.lastIndexOf('/')+1, urlstr.length() );
-				//System.out.println(fileName);
 				
 				filenameArray.add(fileName);
 				
@@ -72,6 +82,11 @@ public class Grabber {
 		}
 	}
 	
+	/**
+	 * run() method is for downloading files from the actual website.
+	 * it also handles where the files will be downloaded to, namely
+	 * what folder on the local machine they will be stored. 
+	 */
 	public void run() 
 	{
 		

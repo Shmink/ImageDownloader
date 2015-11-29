@@ -32,7 +32,14 @@ import java.awt.Color;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-public class GUI {
+/**
+ * This class is for the GUI and has some other functions.
+ * Those will be commented on later but mainly the file chooser.
+ * @author Tom Nicklin
+ *
+ */
+public class GUI 
+{
 
 	private JFrame frmFileDownloader;
 	private JTextField URLtextBox;
@@ -63,6 +70,8 @@ public class GUI {
 
 	/**
 	 * Initialize the contents of the frame.
+	 * As well as some global variables needed to be accessed
+	 * from other classes.
 	 */
 	public static String path = null; 
 	public static String url = null;
@@ -231,13 +240,18 @@ public class GUI {
 		
 		table = new JTable();
 		table.setBackground(Color.LIGHT_GRAY);
-		//table.setModel(new DefaultTableModel(data, nameTheColoumns));
 		table.setBounds(10, 36, 334, 326);
 		frmFileDownloader.getContentPane().add(table);
 		
 		
 	}
 	
+	/**
+	 * tableMaker() method is as you would guess what makes the table.
+	 * This is called when you want to fetch the file names from a website.
+	 * It then dynamically makes the table based on the number files available
+	 * and will then display them in the table.
+	 */
 	public void tableMaker()
 	{
 		grab.updateFileNames();
